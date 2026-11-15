@@ -1,0 +1,5 @@
+# Built binaries
+mac/claude-ghost
+skill/scripts/
+*.o
+.DS_Store
