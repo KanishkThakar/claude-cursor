@@ -10,6 +10,7 @@ An opt-in, click-through, orange **"Claude"** cursor that lives *inside the one 
 
 [![macOS](https://img.shields.io/badge/macOS-Apple%20silicon%20tested-black?logo=apple)](mac/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?logo=windows)](windows/)
+[![Windows build](https://github.com/KanishkThakar/claude-cursor/actions/workflows/windows.yml/badge.svg)](https://github.com/KanishkThakar/claude-cursor/actions/workflows/windows.yml)
 [![Swift](https://img.shields.io/badge/Swift-5%20%7C%206-F05138?logo=swift&logoColor=white)](mac/ghost.swift)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d97757.svg)](LICENSE)
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](skill/SKILL.md)
@@ -49,7 +50,7 @@ No admin, nothing to install first. Paste into PowerShell:
 irm https://raw.githubusercontent.com/KanishkThakar/claude-cursor/main/windows/install.ps1 | iex
 ```
 
-…or download the [ZIP](https://github.com/KanishkThakar/claude-cursor/archive/refs/heads/main.zip) and double-click **`windows\install.cmd`**. It builds the cursor, adds `claude-cursor` to your PATH, installs the Claude Code skill and runs a live demo in Notepad. Details in [`windows/`](windows/).
+…or download **[ClaudeCursor-windows.zip](https://github.com/KanishkThakar/claude-cursor/releases/latest/download/ClaudeCursor-windows.zip)**, unzip it and double-click **`install.cmd`**. It builds the cursor, adds `claude-cursor` to your PATH, installs the Claude Code skill and runs a live demo in Notepad. Details in [`windows/`](windows/).
 
 ```powershell
 claude-cursor start --app notepad
@@ -135,7 +136,7 @@ The real clicks and typing still go through your background computer-use control
 | Platform | Status | Tested on |
 |---|---|---|
 | **macOS** | ✅ Working | macOS 26.6, Apple silicon (M5 Max), Swift 6.4. Built, positioned to within 1 px, bound to Microsoft Word and test windows, and confirmed click-through. |
-| **Windows** | ✅ Working | Windows 10/11. Built by the `csc.exe` that ships with Windows; Same overlay design as the original Windows build tested in Calculator, Character Map and Notepad. |
+| **Windows** | ✅ Working | Windows 10/11. Built by the `csc.exe` that ships with Windows; Built with the `csc.exe` that ships with Windows; every push is compiled and smoke-tested in Notepad by [CI](.github/workflows/windows.yml), including the one-line installer. |
 | Multiple monitors (macOS) | ⚠️ Untested | Should work (one panel, global coordinates). Reports welcome. |
 
 ## FAQ

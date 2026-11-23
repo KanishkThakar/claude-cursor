@@ -10,7 +10,7 @@ Same idea, same commands as the Mac version: an orange **"Claude"** arrow that l
 irm https://raw.githubusercontent.com/KanishkThakar/claude-cursor/main/windows/install.ps1 | iex
 ```
 
-**Option B: double-click.** Download the repo ([ZIP](https://github.com/KanishkThakar/claude-cursor/archive/refs/heads/main.zip)), unzip, open `windows\` and double-click **`install.cmd`**.
+**Option B: double-click.** Download **[ClaudeCursor-windows.zip](https://github.com/KanishkThakar/claude-cursor/releases/latest/download/ClaudeCursor-windows.zip)**, unzip it and double-click **`install.cmd`**.
 
 The installer:
 1. copies the files to `%LOCALAPPDATA%\Programs\ClaudeCursor` and builds `claude-ghost.exe` with the C# compiler that already ships with Windows 10/11 (no Visual Studio, no .NET SDK);
