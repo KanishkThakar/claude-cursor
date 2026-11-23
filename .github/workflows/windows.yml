@@ -45,6 +45,14 @@ jobs:
           if (-not (Test-Path "$env:LOCALAPPDATA\Programs\ClaudeCursor\claude-ghost.exe")) { throw 'installer did not build' }
           if (-not (Test-Path "$env:USERPROFILE\.claude\skills\claude-cursor\SKILL.md")) { throw 'skill not installed' }
           windows\install.ps1 -Uninstall
+      - name: One-liner install (irm | iex from main)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        timeout-minutes: 3
+        run: |
+          $env:CLAUDE_CURSOR_NODEMO = '1'
+          irm https://raw.githubusercontent.com/KanishkThakar/claude-cursor/main/windows/install.ps1 | iex
+          if (-not (Test-Path "$env:LOCALAPPDATA\Programs\ClaudeCursor\claude-ghost.exe")) { throw 'one-liner did not install' }
       - name: Package
         shell: powershell
         run: |
