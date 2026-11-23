@@ -95,7 +95,7 @@ function ParseTarget([string[]]$a) {
   if ($app) {
     $args2 = @('--find-window', $app); if ($title) { $args2 += $title }
     $info = Ghost $args2
-    if (-not $info) { "no visible window for app `"$app`"$(if ($title) { " titled `"$title`"" }) (open it first)"; exit 1 }
+    if (-not $info) { $tt = ''; if ($title) { $tt = ' titled "' + $title + '"' }; 'no visible window for app "' + $app + '"' + $tt + ' (open it first)'; exit 1 }
   } elseif ($wid) {
     $info = Ghost @('--window-info', $wid)
     if (-not $info) { "window $wid not found"; exit 1 }
