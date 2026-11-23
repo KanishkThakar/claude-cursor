@@ -11,6 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Build with the csc.exe built into Windows
@@ -18,15 +19,32 @@ jobs:
         run: windows\claude-cursor.ps1 build
       - name: Smoke test (Notepad)
         shell: powershell
+        timeout-minutes: 4
         run: |
           $np = Start-Process notepad -PassThru; Start-Sleep 3
-          windows\claude-cursor.ps1 find notepad
-          windows\claude-cursor.ps1 start --app notepad
-          if (-not ((windows\claude-cursor.ps1 status) -like 'running*')) { throw 'ghost did not start' }
-          windows\claude-cursor.ps1 say 'Claude · testing'
-          windows\claude-cursor.ps1 demo
-          windows\claude-cursor.ps1 stop
+          function T($label, [scriptblock]$b) {
+            Write-Host "== $label"
+            $j = Start-Job -ScriptBlock $b -ArgumentList $PWD.Path
+            if (-not (Wait-Job $j -Timeout 40)) { Write-Host "TIMEOUT in $label"; Stop-Job $j; Receive-Job $j; throw "$label hung" }
+            $o = Receive-Job $j; $o | Write-Host; return $o
+          }
+          T 'find'   { param($d) Set-Location $d; windows\claude-cursor.ps1 find notepad }
+          T 'start'  { param($d) Set-Location $d; windows\claude-cursor.ps1 start --app notepad }
+          $s = T 'status' { param($d) Set-Location $d; windows\claude-cursor.ps1 status }
+          if (-not ("$s" -like 'running*')) { throw 'ghost did not start' }
+          T 'say'    { param($d) Set-Location $d; windows\claude-cursor.ps1 say 'Claude · testing' }
+          T 'click'  { param($d) Set-Location $d; windows\claude-cursor.ps1 click 300 300 }
+          T 'demo'   { param($d) Set-Location $d; windows\claude-cursor.ps1 demo }
+          T 'stop'   { param($d) Set-Location $d; windows\claude-cursor.ps1 stop }
           Stop-Process $np -ErrorAction SilentlyContinue
+      - name: Installer dry run (local copy, no demo)
+        shell: powershell
+        timeout-minutes: 3
+        run: |
+          windows\install.ps1 -NoDemo
+          if (-not (Test-Path "$env:LOCALAPPDATA\Programs\ClaudeCursor\claude-ghost.exe")) { throw 'installer did not build' }
+          if (-not (Test-Path "$env:USERPROFILE\.claude\skills\claude-cursor\SKILL.md")) { throw 'skill not installed' }
+          windows\install.ps1 -Uninstall
       - name: Package
         shell: powershell
         run: |
