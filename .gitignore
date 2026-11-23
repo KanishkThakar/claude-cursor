@@ -3,3 +3,5 @@ mac/claude-ghost
 skill/scripts/
 *.o
 .DS_Store
+windows/claude-ghost.exe
+dist/

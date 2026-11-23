@@ -1,6 +1,6 @@
 ---
 name: claude-cursor
-description: Show Claude's own orange "Claude" cursor inside the one app window Claude is working in on macOS, while the user keeps their own mouse and keyboard. Opt-in only. Use when the user says "cursor", "show me where you're clicking", "show your cursor", or invokes /claude-cursor <task>.
+description: Show Claude's own orange "Claude" cursor inside the one app window Claude is working in on macOS or Windows, while the user keeps their own mouse and keyboard. Opt-in only. Use when the user says "cursor", "show me where you're clicking", "show your cursor", or invokes /claude-cursor <task>.
 ---
 
 # Claude Cursor
@@ -9,7 +9,9 @@ An orange arrow labelled "Claude" that shows where Claude is acting inside the t
 
 The cursor is drawn only inside the target window. It is clipped to it and sits directly above it in the window stack, so other windows cover it. It follows the window when it moves and hides when the window is minimised, closed or on another Space.
 
-Script: `"${CLAUDE_SKILL_DIR}/scripts/claude-cursor.sh"`, called `CC` below. Coordinates are global top-left points, the same space as Accessibility `AXPosition`.
+Script, called `CC` below:
+- **macOS:** `"${CLAUDE_SKILL_DIR}/scripts/claude-cursor.sh"`. Coordinates are global top-left points, the same space as Accessibility `AXPosition`.
+- **Windows:** `"${CLAUDE_SKILL_DIR}/scripts/claude-cursor"` (works in Git Bash; `claude-cursor.cmd` for cmd/PowerShell). Coordinates are global screen pixels, the same space as UI Automation `BoundingRectangle`; `--app` takes a process name (`notepad`, `winword`) or a window title (`Calculator`), and `--window` takes an HWND.
 
 ## Rules
 

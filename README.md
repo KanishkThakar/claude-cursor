@@ -9,7 +9,7 @@
 An opt-in, click-through, orange **"Claude"** cursor that lives *inside the one app window* Claude is working in. It glides, tilts, sparkles and ripples on every click. Your real pointer and keyboard stay yours the whole time.
 
 [![macOS](https://img.shields.io/badge/macOS-Apple%20silicon%20tested-black?logo=apple)](mac/)
-[![Windows](https://img.shields.io/badge/Windows-coming%20to%20repo-0078D6?logo=windows)](windows/)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?logo=windows)](windows/)
 [![Swift](https://img.shields.io/badge/Swift-5%20%7C%206-F05138?logo=swift&logoColor=white)](mac/ghost.swift)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d97757.svg)](LICENSE)
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](skill/SKILL.md)
@@ -25,7 +25,7 @@ AI agents that drive desktop apps are great until you can't tell what they're do
 - **steal your mouse and keyboard** (you have to sit on your hands), or
 - **act invisibly in the background** (you have no idea where they clicked).
 
-Claude Cursor fixes the second problem without causing the first. Claude acts through background, app-bound controls (Accessibility actions on macOS), and this cursor shows *where* those actions land, right inside the target window.
+Claude Cursor fixes the second problem without causing the first. Claude acts through background, app-bound controls (Accessibility actions on macOS, UI Automation on Windows), and this cursor shows *where* those actions land, right inside the target window.
 
 ## Features
 
@@ -40,6 +40,22 @@ Claude Cursor fixes the second problem without causing the first. Claude acts th
 | ✅ **Opt-in** | Nothing appears unless you ask for it. Every command except `start` is a no-op when it's off. |
 | 🪶 **Light** | Core Animation on the GPU: about 0.6% CPU and 38 MB at idle on Apple silicon. It quits by itself after 20 minutes without updates. |
 | 🤖 **Claude Code skill** | Drop-in skill: `/claude-cursor open TextEdit and type hello`. |
+
+## Quick start (Windows) — one click
+
+No admin, nothing to install first. Paste into PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/KanishkThakar/claude-cursor/main/windows/install.ps1 | iex
+```
+
+…or download the [ZIP](https://github.com/KanishkThakar/claude-cursor/archive/refs/heads/main.zip) and double-click **`windows\install.cmd`**. It builds the cursor, adds `claude-cursor` to your PATH, installs the Claude Code skill and runs a live demo in Notepad. Details in [`windows/`](windows/).
+
+```powershell
+claude-cursor start --app notepad
+claude-cursor demo
+claude-cursor stop
+```
 
 ## Quick start (macOS)
 
@@ -119,7 +135,7 @@ The real clicks and typing still go through your background computer-use control
 | Platform | Status | Tested on |
 |---|---|---|
 | **macOS** | ✅ Working | macOS 26.6, Apple silicon (M5 Max), Swift 6.4. Built, positioned to within 1 px, bound to Microsoft Word and test windows, and confirmed click-through. |
-| **Windows** | 🚚 Being moved into the repo | Built and tested first in Calculator, Character Map and Notepad. Source is landing in [`windows/`](windows/). |
+| **Windows** | ✅ Working | Windows 10/11. Built by the `csc.exe` that ships with Windows; Same overlay design as the original Windows build tested in Calculator, Character Map and Notepad. |
 | Multiple monitors (macOS) | ⚠️ Untested | Should work (one panel, global coordinates). Reports welcome. |
 
 ## FAQ
@@ -134,7 +150,7 @@ The real clicks and typing still go through your background computer-use control
 
 ## Roadmap
 
-- [ ] Windows source in `windows/`
+- [x] Windows source in `windows/` with a one-click installer
 - [ ] Homebrew tap (`brew install claude-cursor`)
 - [ ] Multi-monitor testing
 - [ ] Typing indicator (caret sparkle while text is being entered)

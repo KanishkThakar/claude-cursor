@@ -1,0 +1,4 @@
+#!/bin/sh
+# claude-cursor - Git Bash / WSL-interop wrapper (Claude Code on Windows runs Git Bash).
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$HERE/claude-cursor.ps1" 2>/dev/null || echo "$HERE/claude-cursor.ps1")" "$@"

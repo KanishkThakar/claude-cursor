@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2026-11-24
+- Windows version in `windows/`: layered, click-through, owner-bound overlay with the same effects and the same commands as macOS.
+- One-click Windows install: `irm .../install.ps1 | iex` or double-click `install.cmd` (builds with the compiler built into Windows, adds to PATH, installs the skill, runs a demo).
+
 ## 0.3.0 - 2026-11-16
 - The cursor is now bound to one target window: clipped to it, ordered directly above it, follows it, and hides with it.
 - `start` and `attach` now take `--app` / `--title` / `--window`; added `find`.
