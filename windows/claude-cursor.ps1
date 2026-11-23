@@ -114,7 +114,7 @@ $rest = @(); if ($args.Count -gt 1) { $rest = @($args[1..($args.Count - 1)]) }
 
 switch ($cmd) {
   'build' { Build }
-  'find'  { EnsureBuilt; $r = Ghost $rest; if ($r) { $r } else { 'not found'; exit 1 } }
+  'find'  { EnsureBuilt; $r = Ghost (@('--find-window') + $rest); if ($r) { $r } else { 'not found'; exit 1 } }
   'start' {
     $t = ParseTarget $rest
     [IO.File]::WriteAllText($WidF, $t.Wid, $Utf8)
