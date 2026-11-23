@@ -1,4 +1,4 @@
-﻿# install.ps1 - one-click installer for Claude Cursor on Windows 10/11.
+# install.ps1 - one-click installer for Claude Cursor on Windows 10/11.
 # Copyright (c) 2026 Kanishk Thakar. MIT License - https://github.com/KanishkThakar/claude-cursor
 #
 # One line, no admin, nothing else to install (it uses the C# compiler built into Windows):
@@ -112,7 +112,7 @@ else {
   Say "        -> $out" DarkGray
   if ($out -like 'running*') {
     & $cc demo | Out-Null
-    & $cc say 'Claude · hi there' | Out-Null
+    & $cc say ('Claude ' + [char]0xB7 + ' hi there') | Out-Null
     Start-Sleep -Seconds 2
     & $cc stop | Out-Null
   }
