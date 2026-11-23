@@ -1,0 +1,43 @@
+name: Windows build
+on:
+  push:
+    paths: ['windows/**', 'skill/**', '.github/workflows/windows.yml']
+    tags: ['v*']
+  pull_request:
+    paths: ['windows/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with the csc.exe built into Windows
+        shell: powershell
+        run: windows\claude-cursor.ps1 build
+      - name: Smoke test (Notepad)
+        shell: powershell
+        run: |
+          $np = Start-Process notepad -PassThru; Start-Sleep 3
+          windows\claude-cursor.ps1 find notepad
+          windows\claude-cursor.ps1 start --app notepad
+          if (-not ((windows\claude-cursor.ps1 status) -like 'running*')) { throw 'ghost did not start' }
+          windows\claude-cursor.ps1 say 'Claude · testing'
+          windows\claude-cursor.ps1 demo
+          windows\claude-cursor.ps1 stop
+          Stop-Process $np -ErrorAction SilentlyContinue
+      - name: Package
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory dist\ClaudeCursor\skill | Out-Null
+          Copy-Item windows\* dist\ClaudeCursor\
+          Copy-Item skill\SKILL.md dist\ClaudeCursor\skill\
+          Copy-Item LICENSE dist\ClaudeCursor\
+          Compress-Archive dist\ClaudeCursor\* ClaudeCursor-windows.zip
+      - uses: actions/upload-artifact@v4
+        with: { name: ClaudeCursor-windows, path: ClaudeCursor-windows.zip }
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with: { files: ClaudeCursor-windows.zip }
