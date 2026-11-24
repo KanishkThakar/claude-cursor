@@ -57,8 +57,10 @@ jobs:
           Stop-Process -Id $rec.Id
           Start-Sleep 2
           Stop-Process $np -ErrorAction SilentlyContinue
+          $ErrorActionPreference = 'Continue'
           ffmpeg -y -i demo-raw.mkv -vf "crop=900:620:60:40" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart demo-windows.mp4 2>&1 | Select-Object -Last 2
           ffmpeg -y -i demo-windows.mp4 -vf "fps=15,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer" demo-windows.gif 2>&1 | Select-Object -Last 2
+          if (-not (Test-Path demo-windows.gif)) { throw 'video conversion failed' }
           Get-Item demo-windows.mp4, demo-windows.gif | Format-Table Name, Length
       - uses: actions/upload-artifact@v4
         if: always()
