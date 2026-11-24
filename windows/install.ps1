@@ -8,7 +8,7 @@
 # What it does:
 #   1. copies the Windows files to %LOCALAPPDATA%\Programs\ClaudeCursor and builds claude-ghost.exe
 #   2. adds that folder to your user PATH, so `claude-cursor` works in any new terminal
-#   3. installs the Claude Code skill to %USERPROFILE%\.claude\skills\claude-cursor
+#   3. installs the Claude Code skills /claude-cursor and /computer-control
 #   4. opens Notepad and runs a live demo inside it
 # Options (when run as a file): -NoSkill  -NoDemo  -Uninstall
 $NoSkill = ($args -contains '-NoSkill') -or $env:CLAUDE_CURSOR_NOSKILL
@@ -20,8 +20,9 @@ $ProgressPreference = 'SilentlyContinue'
 
 $Repo  = 'KanishkThakar/claude-cursor'
 $Dest  = Join-Path $env:LOCALAPPDATA 'Programs\ClaudeCursor'
-$Skill = Join-Path $env:USERPROFILE '.claude\skills\claude-cursor'
-$Files = 'ghost.cs', 'claude-cursor.ps1', 'claude-cursor.cmd', 'claude-cursor'
+$Skills = Join-Path $env:USERPROFILE '.claude\skills'
+$Files = 'ghost.cs', 'claude-cursor.ps1', 'claude-cursor.cmd', 'claude-cursor', 'claude-control.ps1', 'claude-control.cmd', 'claude-control'
+$SkillNames = 'claude-cursor', 'computer-control'
 
 function Say($msg, $color = 'Gray') { Write-Host $msg -ForegroundColor $color }
 function Banner {
@@ -47,7 +48,7 @@ Banner
 if ($Uninstall) {
   if (Test-Path (Join-Path $Dest 'claude-cursor.ps1')) { & (Join-Path $Dest 'claude-cursor.ps1') stop | Out-Null }
   Path-Remove
-  if (Test-Path (Join-Path $Skill '.installed-by-claude-cursor')) { Remove-Item -Recurse -Force $Skill }
+  foreach ($n in $SkillNames) { $d = Join-Path $Skills $n; if (Test-Path (Join-Path $d '.installed-by-claude-cursor')) { Remove-Item -Recurse -Force $d } }
   if (Test-Path $Dest) { Remove-Item -Recurse -Force $Dest }
   Say '  Claude Cursor removed.' Green
   return
@@ -70,7 +71,7 @@ else {
   Invoke-WebRequest -UseBasicParsing "https://github.com/$Repo/archive/refs/heads/main.zip" -OutFile $zip
   Expand-Archive -Force $zip $tmp
   $root = Get-ChildItem $tmp -Directory | Select-Object -First 1
-  $Src = Join-Path $root.FullName 'windows'; $SkillMd = Join-Path $root.FullName 'skill\SKILL.md'
+  $Src = Join-Path $root.FullName 'windows'; $SkillSrc = Join-Path $root.FullName 'skills'
 }
 if (Test-Path (Join-Path $Dest 'claude-cursor.ps1')) { try { & (Join-Path $Dest 'claude-cursor.ps1') stop | Out-Null } catch { } }
 New-Item -ItemType Directory -Force $Dest | Out-Null
@@ -88,17 +89,21 @@ if (-not (($p -split ';') -contains $Dest)) {
 $env:Path = "$env:Path;$Dest"
 Say '        -> added to your PATH: claude-cursor' DarkGray
 
-# 3. Claude Code skill.
-Step 3 'Installing the Claude Code skill'
+# 3. Claude Code skills: /claude-cursor (the cursor) and /computer-control (background computer use).
+Step 3 'Installing the Claude Code skills'
 if ($NoSkill) { Say '        -> skipped (-NoSkill)' DarkGray }
-elseif ((Test-Path $Skill) -and -not (Test-Path (Join-Path $Skill '.installed-by-claude-cursor'))) {
-  Say "        -> $Skill exists and wasn't made by this installer; leaving it alone" Yellow
-} else {
-  New-Item -ItemType Directory -Force (Join-Path $Skill 'scripts') | Out-Null
-  Copy-Item -Force $SkillMd (Join-Path $Skill 'SKILL.md')
-  foreach ($f in $Files + 'claude-ghost.exe') { Copy-Item -Force (Join-Path $Dest $f) (Join-Path $Skill 'scripts') }
-  New-Item -ItemType File -Force (Join-Path $Skill '.installed-by-claude-cursor') | Out-Null
-  Say '        -> /claude-cursor is ready in Claude Code' DarkGray
+else {
+  foreach ($n in $SkillNames) {
+    $d = Join-Path $Skills $n
+    if ((Test-Path $d) -and -not (Test-Path (Join-Path $d '.installed-by-claude-cursor'))) {
+      Say "        -> $d exists and wasn't made by this installer; leaving it alone" Yellow; continue
+    }
+    New-Item -ItemType Directory -Force (Join-Path $d 'scripts') | Out-Null
+    Copy-Item -Recurse -Force (Join-Path (Join-Path $SkillSrc $n) '*') $d
+    foreach ($f in $Files + 'claude-ghost.exe') { Copy-Item -Force (Join-Path $Dest $f) (Join-Path $d 'scripts') }
+    New-Item -ItemType File -Force (Join-Path $d '.installed-by-claude-cursor') | Out-Null
+    Say "        -> /$n is ready in Claude Code" DarkGray
+  }
 }
 
 # 4. Live demo.
@@ -124,5 +129,7 @@ Say '    claude-cursor start --app notepad'
 Say '    claude-cursor demo'
 Say '    claude-cursor stop'
 Say ''
-Say '  In Claude Code:  /claude-cursor open Notepad and type hello' DarkYellow
+Say '    claude-control ui --app notepad' 
+Say ''
+Say '  In Claude Code:  /computer-control cursor open Notepad and type hello' DarkYellow
 Say ''

@@ -1,6 +1,6 @@
 # Built binaries
 mac/claude-ghost
-skill/scripts/
+skills/*/scripts/claude-ghost*
 *.o
 .DS_Store
 windows/claude-ghost.exe

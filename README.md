@@ -13,7 +13,7 @@ An opt-in, click-through, orange **"Claude"** cursor that lives *inside the one 
 [![Windows build](https://github.com/KanishkThakar/claude-cursor/actions/workflows/windows.yml/badge.svg)](https://github.com/KanishkThakar/claude-cursor/actions/workflows/windows.yml)
 [![Swift](https://img.shields.io/badge/Swift-5%20%7C%206-F05138?logo=swift&logoColor=white)](mac/ghost.swift)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d97757.svg)](LICENSE)
-[![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](skill/SKILL.md)
+[![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-d97757)](skills/claude-cursor/SKILL.md)
 
 </div>
 
@@ -98,7 +98,7 @@ Coordinates are **global top-left points**: the same space as Accessibility `AXP
 
 ## Use it with Claude Code
 
-`./install.sh --skill` installs [`skill/SKILL.md`](skill/SKILL.md) to `~/.claude/skills/claude-cursor/`. Then:
+`./install.sh --skill` installs [`skill/SKILL.md`](skills/claude-cursor/SKILL.md) to `~/.claude/skills/claude-cursor/`. Then:
 
 ```text
 /claude-cursor open TextEdit and type hello
