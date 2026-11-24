@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 - 2026-11-24
+- `claude-control` for Windows: background computer use (windows, ui, find, click, type, read, focus) through the native IUIAutomation COM API, with the cursor gliding to every element. The managed .NET client sees classic Win32 controls as bare panes on Windows build 26100, so it isn't used.
+- `/computer-control` skill (macOS + Windows): background browser work, app-bound desktop control, diagnosis, and the cursor. Installed by both installers next to `/claude-cursor`.
+- Skills moved to `skills/`.
+- Demo videos for macOS and Windows in `docs/`. The Windows one is recorded by CI on a real Windows machine.
+
 ## 0.4.0 - 2026-11-24
 - Windows version in `windows/`: layered, click-through, owner-bound overlay with the same effects and the same commands as macOS.
 - One-click Windows install: `irm .../install.ps1 | iex` or double-click `install.cmd` (builds with the compiler built into Windows, adds to PATH, installs the skill, runs a demo).

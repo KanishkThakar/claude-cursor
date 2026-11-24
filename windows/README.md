@@ -20,6 +20,10 @@ The installer:
 
 Flags: `install.cmd -NoSkill`, `-NoDemo`, `-Uninstall`.
 
+## Demo
+
+![Claude Cursor and claude-control on Windows](../docs/demo-windows.gif)
+
 ## Try it
 
 ```powershell
@@ -30,6 +34,15 @@ claude-cursor demo
 claude-cursor stop
 ```
 
+Background computer use with `claude-control` (UI Automation, never touches your mouse):
+
+```powershell
+claude-control ui --app notepad
+claude-control type e1 "Hello from Claude"
+claude-control click e20
+claude-control read e1
+```
+
 `--app` matches the process name (`notepad`, `winword`, `chrome`) or the window title (`Calculator`). Works from cmd, PowerShell and Git Bash (the shell Claude Code uses on Windows).
 
 ## How it works
@@ -38,7 +51,8 @@ claude-cursor stop
 |---|---|
 | `ghost.cs` | The overlay: a per-pixel-alpha layered window (`WS_EX_LAYERED \| TRANSPARENT \| NOACTIVATE \| TOOLWINDOW`) drawn with GDI+ at 60 fps |
 | `claude-cursor.ps1` | Controller: `start` / `attach` / `move` / `click` / `say` / `demo` / `find` / `stop` / `status` |
-| `claude-cursor.cmd`, `claude-cursor` | Wrappers for cmd/PowerShell and Git Bash |
+| `control.cs`, `claude-control.ps1` | `claude-control`: background computer use through the native IUIAutomation COM API |
+| `claude-cursor.cmd`, `claude-cursor`, `claude-control.cmd`, `claude-control` | Wrappers for cmd/PowerShell and Git Bash |
 | `install.ps1`, `install.cmd` | One-click installer |
 
 - **Window-bound:** the overlay is *owned* by the target window (`GWLP_HWNDPARENT`), so Windows keeps it directly above that window and nothing else. Other windows cover it; it follows moves and resizes (frame from `DWMWA_EXTENDED_FRAME_BOUNDS`); it hides when the target is minimised, closed or cloaked on another virtual desktop.

@@ -17,6 +17,15 @@ An opt-in, click-through, orange **"Claude"** cursor that lives *inside the one 
 
 </div>
 
+## See it in action
+
+| macOS: TextEdit, typed in the background | Windows: Notepad, driven by `claude-control` |
+|---|---|
+| ![Claude Cursor on macOS](docs/demo-mac.gif) | ![Claude Cursor on Windows](docs/demo-windows.gif) |
+| [MP4](docs/demo-mac.mp4) · recorded with ScreenCaptureKit, only the target window + cursor | [MP4](docs/demo-windows.mp4) · recorded on a real Windows machine by [CI](.github/workflows/windows.yml) |
+
+In both clips the user's own mouse and keyboard are never touched: the text goes in through the OS accessibility layer, and the orange arrow only shows where.
+
 ---
 
 ## Why
@@ -40,7 +49,8 @@ Claude Cursor fixes the second problem without causing the first. Claude acts th
 | 🏷️ **Narrates** | The label shows what Claude is doing: `Claude · typing`, `Claude · reading`… It flips to stay inside the window at the edges. |
 | ✅ **Opt-in** | Nothing appears unless you ask for it. Every command except `start` is a no-op when it's off. |
 | 🪶 **Light** | Core Animation on the GPU: about 0.6% CPU and 38 MB at idle on Apple silicon. It quits by itself after 20 minutes without updates. |
-| 🤖 **Claude Code skill** | Drop-in skill: `/claude-cursor open TextEdit and type hello`. |
+| 🤖 **Claude Code skills** | `/claude-cursor` for the cursor, `/computer-control` for full background computer use with the cursor (macOS + Windows). |
+| 🪄 **Windows computer use** | `claude-control` clicks, types and reads through UI Automation, in the background, and drives the cursor to every element. |
 
 ## Quick start (Windows) — one click
 
@@ -96,9 +106,33 @@ Try it on any window:
 
 Coordinates are **global top-left points**: the same space as Accessibility `AXPosition` and `CGWindowList` bounds. To point at a UI element, use the centre of its AX frame: `AXPosition + AXSize / 2`.
 
+## Computer use on Windows: `claude-control`
+
+The cursor shows *where*; `claude-control` does the actual work, in the background, through the native UI Automation API. It never moves your pointer and never sends global keystrokes.
+
+```powershell
+claude-control windows                         # list windows
+claude-control ui --app notepad                # numbered elements: e1 Edit "Text Editor" {value} ...
+claude-control type e1 "Hello from Claude"     # sets the text, cursor glides there ("Claude · typing")
+claude-control find --app notepad --name Format
+claude-control click e1                        # invoke / toggle / select / expand
+claude-control read e1
+```
+
+Elements that expose no UI Automation pattern (games, custom-drawn canvases) can't be driven in the background; it says so instead of grabbing your mouse.
+
 ## Use it with Claude Code
 
-`./install.sh --skill` installs [`skill/SKILL.md`](skills/claude-cursor/SKILL.md) to `~/.claude/skills/claude-cursor/`. Then:
+Both installers (`./install.sh --skill` on macOS, `install.ps1` on Windows) install two skills:
+
+- [`/claude-cursor`](skills/claude-cursor/SKILL.md): just the cursor, for any controller you already use.
+- [`/computer-control`](skills/computer-control/SKILL.md): background computer use on macOS and Windows (browser tabs, desktop apps, connection diagnosis), with the cursor showing every step.
+
+```text
+/computer-control cursor open Notepad and type hello
+```
+
+Or only the cursor:
 
 ```text
 /claude-cursor open TextEdit and type hello
@@ -154,6 +188,8 @@ The real clicks and typing still go through your background computer-use control
 - [x] Windows source in `windows/` with a one-click installer
 - [ ] Homebrew tap (`brew install claude-cursor`)
 - [ ] Multi-monitor testing
+- [x] Windows computer use (`claude-control`)
+- [x] Demo videos for both platforms
 - [ ] Typing indicator (caret sparkle while text is being entered)
 - [ ] Themes (colours and label styles)
 
