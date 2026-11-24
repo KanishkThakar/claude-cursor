@@ -18,9 +18,9 @@ Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 # Load the client-side providers for classic Win32 controls (Edit, menus, list views...).
 # Without them those controls appear as bare panes with no patterns.
 try {
-  Add-Type -AssemblyName UIAutomationClientsideProviders
-  [Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly([UIAutomationClientsideProviders.UIAutomationClientSideProviders].Assembly.GetName())
-} catch { }
+  $csp = [Reflection.Assembly]::Load('UIAutomationClientsideProviders, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
+  [Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($csp.GetName())
+} catch { [Console]::Error.WriteLine("claude-control: client-side providers not loaded: $($_.Exception.Message)") }
 Add-Type @'
 using System; using System.Runtime.InteropServices;
 public static class CCDpi {
