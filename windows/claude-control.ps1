@@ -87,14 +87,14 @@ $PatternProps = [ordered]@{
 function Walk($win, [int]$max, [bool]$all) {
   $cr = New-Object Windows.Automation.CacheRequest
   foreach ($p in $A::NameProperty, $A::ControlTypeProperty, $A::AutomationIdProperty, $A::BoundingRectangleProperty,
-                 $A::IsOffscreenProperty, $A::IsEnabledProperty, $A::RuntimeIdProperty) { $cr.Add($p) }
+                 $A::IsOffscreenProperty, $A::IsEnabledProperty) { $cr.Add($p) }
   foreach ($p in $PatternProps.Values) { $cr.Add($p) }
   $cr.Add([Windows.Automation.ValuePattern]::ValueProperty)
   $cr.TreeFilter = [Windows.Automation.Automation]::ControlViewCondition
   $ctx = $cr.Activate()
   try { $els = $win.FindAll([Windows.Automation.TreeScope]::Descendants, [Windows.Automation.Automation]::ControlViewCondition) }
   finally { $ctx.Dispose() }
-  $out = @(); $n = 0
+  $out = @(); $n = 0; $errs = 0; $firstErr = $null
   foreach ($e in $els) {
     try {
       $c = $e.Cached
@@ -111,11 +111,12 @@ function Walk($win, [int]$max, [bool]$all) {
       $out += [pscustomobject]@{
         Ref = "e$n"; Type = $type; Name = $c.Name; Id = $c.AutomationId; Value = $val; Pats = $pats
         X = [int]$r.X; Y = [int]$r.Y; W = [int]$r.Width; H = [int]$r.Height
-        Rid = (($e.GetCachedPropertyValue($A::RuntimeIdProperty)) -join '.')
+        Rid = (($e.GetRuntimeId()) -join '.')
       }
       if ($n -ge $max) { break }
-    } catch { }
+    } catch { $errs++; if (-not $firstErr) { $firstErr = $_.Exception.Message } }
   }
+  if ($errs) { [Console]::Error.WriteLine("claude-control: skipped $errs of $($els.Count) elements; first error: $firstErr") }
   return $out
 }
 

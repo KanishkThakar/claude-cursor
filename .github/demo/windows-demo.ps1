@@ -15,7 +15,7 @@ $rect = (Get-Content (Join-Path $env:LOCALAPPDATA 'claude-ghost\rect') -Raw).Tri
 $cx = $rect[0] + [int]($rect[2] / 2); $cy = $rect[1] + [int]($rect[3] / 2)
 foreach ($p in @(@(-200, -80), @(180, -60), @(160, 120), @(-140, 100))) { & $CC move ($cx + $p[0]) ($cy + $p[1]) | Out-Null; Start-Sleep -Milliseconds 250 }
 
-$ui = & $CTL ui --app notepad
+$ui = & $CTL ui --app notepad 2>&1
 $ui | Write-Host
 $edit = Ref $ui @('Edit', 'Document')
 if (-not $edit) { throw 'no text area found in Notepad' }
