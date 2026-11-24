@@ -85,27 +85,20 @@ $PatternProps = [ordered]@{
 }
 
 function Walk($win, [int]$max, [bool]$all) {
-  $cr = New-Object Windows.Automation.CacheRequest
-  foreach ($p in $A::NameProperty, $A::ControlTypeProperty, $A::AutomationIdProperty, $A::BoundingRectangleProperty,
-                 $A::IsOffscreenProperty, $A::IsEnabledProperty) { $cr.Add($p) }
-  foreach ($p in $PatternProps.Values) { $cr.Add($p) }
-  $cr.Add([Windows.Automation.ValuePattern]::ValueProperty)
-  $cr.TreeFilter = [Windows.Automation.Automation]::ControlViewCondition
-  $ctx = $cr.Activate()
-  try { $els = $win.FindAll([Windows.Automation.TreeScope]::Descendants, [Windows.Automation.Automation]::ControlViewCondition) }
-  finally { $ctx.Dispose() }
+  $els = $win.FindAll([Windows.Automation.TreeScope]::Descendants, [Windows.Automation.Automation]::ControlViewCondition)
+  if ($els.Count -eq 0) { $els = $win.FindAll([Windows.Automation.TreeScope]::Descendants, [Windows.Automation.Condition]::TrueCondition) }
   $out = @(); $n = 0; $errs = 0; $firstErr = $null
   foreach ($e in $els) {
     try {
-      $c = $e.Cached
-      $pats = @(); foreach ($k in $PatternProps.Keys) { if ($e.GetCachedPropertyValue($PatternProps[$k]) -eq $true) { $pats += $k } }
+      $c = $e.Current
+      $pats = @(); foreach ($k in $PatternProps.Keys) { if ($e.GetCurrentPropertyValue($PatternProps[$k]) -eq $true) { $pats += $k } }
       $type = $c.ControlType.ProgrammaticName -replace '^ControlType\.', ''
       if (-not $all) {
-        if ($c.IsOffscreen) { continue }
+        if ($c.IsOffscreen -and $pats.Count -eq 0) { continue }
         if (-not $c.Name -and $pats.Count -eq 0) { continue }
       }
       $val = $null
-      if ($pats -contains 'value') { try { $val = [string]$e.GetCachedPropertyValue([Windows.Automation.ValuePattern]::ValueProperty) } catch { } }
+      if ($pats -contains 'value') { try { $val = [string]$e.GetCurrentPropertyValue([Windows.Automation.ValuePattern]::ValueProperty) } catch { } }
       $r = $c.BoundingRectangle
       $n++
       $out += [pscustomobject]@{
@@ -116,7 +109,7 @@ function Walk($win, [int]$max, [bool]$all) {
       if ($n -ge $max) { break }
     } catch { $errs++; if (-not $firstErr) { $firstErr = $_.Exception.Message } }
   }
-  if ($errs) { [Console]::Error.WriteLine("claude-control: skipped $errs of $($els.Count) elements; first error: $firstErr") }
+  if ($errs -or $n -eq 0) { [Console]::Error.WriteLine("claude-control: $($els.Count) raw elements, $n listed, $errs errors$(if ($firstErr) { ': ' + $firstErr })") }
   return $out
 }
 
