@@ -1,7 +1,7 @@
 name: Windows build
 on:
   push:
-    paths: ['windows/**', 'skill/**', '.github/workflows/windows.yml']
+    paths: ['windows/**', 'skills/**', '.github/demo/**', '.github/workflows/windows.yml']
     tags: ['v*']
   pull_request:
     paths: ['windows/**']
@@ -37,13 +37,40 @@ jobs:
           T 'demo'   { param($d) Set-Location $d; windows\claude-cursor.ps1 demo }
           T 'stop'   { param($d) Set-Location $d; windows\claude-cursor.ps1 stop }
           Stop-Process $np -ErrorAction SilentlyContinue
+      - name: Record the demo video (Claude drives Notepad in the background)
+        shell: powershell
+        timeout-minutes: 8
+        run: |
+          choco install ffmpeg -y --no-progress | Out-Null
+          $env:Path += ";C:\ProgramData\chocolatey\bin"
+          $np = Start-Process notepad -PassThru; Start-Sleep 3
+          Add-Type @"
+          using System; using System.Runtime.InteropServices;
+          public static class W { [DllImport("user32.dll")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int hh, bool r); }
+          "@
+          [W]::MoveWindow($np.MainWindowHandle, 90, 70, 840, 560, $true) | Out-Null
+          Start-Sleep 1
+          $rec = Start-Process ffmpeg -ArgumentList '-y -f gdigrab -framerate 30 -i desktop -c:v libx264 -preset veryfast -pix_fmt yuv420p demo-raw.mkv' -PassThru -WindowStyle Hidden
+          Start-Sleep 2
+          .github\demo\windows-demo.ps1
+          Start-Sleep 1
+          Stop-Process -Id $rec.Id
+          Start-Sleep 2
+          Stop-Process $np -ErrorAction SilentlyContinue
+          ffmpeg -y -i demo-raw.mkv -vf "crop=900:620:60:40" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart demo-windows.mp4 2>&1 | Select-Object -Last 2
+          ffmpeg -y -i demo-windows.mp4 -vf "fps=15,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer" demo-windows.gif 2>&1 | Select-Object -Last 2
+          Get-Item demo-windows.mp4, demo-windows.gif | Format-Table Name, Length
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: demo-windows, path: "demo-windows.*" }
       - name: Installer dry run (local copy, no demo)
         shell: powershell
         timeout-minutes: 3
         run: |
           windows\install.ps1 -NoDemo
           if (-not (Test-Path "$env:LOCALAPPDATA\Programs\ClaudeCursor\claude-ghost.exe")) { throw 'installer did not build' }
-          if (-not (Test-Path "$env:USERPROFILE\.claude\skills\claude-cursor\SKILL.md")) { throw 'skill not installed' }
+          foreach ($n in 'claude-cursor', 'computer-control') { if (-not (Test-Path "$env:USERPROFILE\.claude\skills\$n\SKILL.md")) { throw "skill $n not installed" } }
+          claude-control.cmd windows
           windows\install.ps1 -Uninstall
       - name: One-liner install (irm | iex from main)
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
@@ -56,9 +83,9 @@ jobs:
       - name: Package
         shell: powershell
         run: |
-          New-Item -ItemType Directory dist\ClaudeCursor\skill | Out-Null
+          New-Item -ItemType Directory dist\ClaudeCursor | Out-Null
           Copy-Item windows\* dist\ClaudeCursor\
-          Copy-Item skill\SKILL.md dist\ClaudeCursor\skill\
+          Copy-Item -Recurse skills dist\ClaudeCursor\skills
           Copy-Item LICENSE dist\ClaudeCursor\
           Compress-Archive dist\ClaudeCursor\* ClaudeCursor-windows.zip
       - uses: actions/upload-artifact@v4
