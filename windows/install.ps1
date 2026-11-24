@@ -60,8 +60,8 @@ if ([Environment]::OSVersion.Platform -ne 'Win32NT') { Say '  This is the Window
 Step 1 'Getting Claude Cursor'
 $Src = $null
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot 'ghost.cs'))) { $Src = $PSScriptRoot
-  $SkillMd = Join-Path $PSScriptRoot 'skill\SKILL.md'
-  if (-not (Test-Path $SkillMd)) { $SkillMd = Join-Path $PSScriptRoot '..\skill\SKILL.md' }
+  $SkillSrc = Join-Path $PSScriptRoot 'skills'
+  if (-not (Test-Path $SkillSrc)) { $SkillSrc = Join-Path $PSScriptRoot '..\skills' }
 }
 else {
   [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072

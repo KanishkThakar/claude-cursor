@@ -25,16 +25,13 @@ foreach ($w in 'Hello from Claude!', ' I am typing into Notepad', ' in the backg
   Start-Sleep -Milliseconds 350
 }
 Start-Sleep -Milliseconds 600
-$menu = & $CTL find --app notepad --name Format
-$fmt = Ref $menu @('MenuItem')
-if ($fmt) {
-  & $CTL click $fmt | Write-Host; Start-Sleep -Milliseconds 1400
-  & $CTL click $fmt | Write-Host; Start-Sleep -Milliseconds 500
-}
+$st = & $CTL find --app notepad --name 'Ln '
+$ln = Ref $st @('Text')
+if ($ln) { & $CTL read $ln | Write-Host; Start-Sleep -Milliseconds 700 }
 $ui = & $CTL ui --app notepad; $edit = Ref $ui @('Edit', 'Document')
 $text = (& $CTL read $edit) -join ' '
 "read back: $text" | Write-Host
 if ($text -notlike 'Hello from Claude!*') { throw 'read-back did not match' }
 & $CC say "Claude $dot done" | Out-Null; & $CC click $cx $cy | Out-Null
-Start-Sleep -Milliseconds 1200
+Start-Sleep -Milliseconds 2000
 & $CC stop | Out-Null
