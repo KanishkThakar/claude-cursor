@@ -50,21 +50,22 @@ jobs:
           "@
           [W]::MoveWindow($np.MainWindowHandle, 90, 70, 840, 560, $true) | Out-Null
           Start-Sleep 1
-          $rec = Start-Process ffmpeg -ArgumentList '-y -f gdigrab -framerate 30 -i desktop -c:v libx264 -preset veryfast -pix_fmt yuv420p demo-raw.mkv' -PassThru -WindowStyle Hidden
+          $rec = Start-Process ffmpeg -ArgumentList '-y -f gdigrab -framerate 30 -t 40 -i desktop -c:v libx264 -preset veryfast -pix_fmt yuv420p demo-raw.mp4' -PassThru -WindowStyle Hidden -RedirectStandardError ffrec.log
           Start-Sleep 2
+          $t0 = Get-Date
           .github\demo\windows-demo.ps1
-          Start-Sleep 1
-          Stop-Process -Id $rec.Id
-          Start-Sleep 2
+          "demo took $([int]((Get-Date) - $t0).TotalSeconds)s" | Tee-Object -FilePath demo-length.txt
+          Wait-Process -Id $rec.Id -Timeout 90
+          Get-Content ffrec.log -Tail 5
           Stop-Process $np -ErrorAction SilentlyContinue
           $ErrorActionPreference = 'Continue'
-          ffmpeg -y -i demo-raw.mkv -vf "crop=900:620:60:40" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart demo-windows.mp4 2>&1 | Select-Object -Last 2
+          ffmpeg -y -i demo-raw.mp4 -vf "crop=900:620:60:40" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart demo-windows.mp4 2>&1 | Select-Object -Last 2
           ffmpeg -y -i demo-windows.mp4 -vf "fps=15,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer" demo-windows.gif 2>&1 | Select-Object -Last 2
           if (-not (Test-Path demo-windows.gif)) { throw 'video conversion failed' }
           Get-Item demo-windows.mp4, demo-windows.gif | Format-Table Name, Length
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: demo-windows, path: "demo-windows.*" }
+        with: { name: demo-windows, path: "demo-*" }
       - name: Installer dry run (local copy, no demo)
         shell: powershell
         timeout-minutes: 3
