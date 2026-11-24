@@ -8,7 +8,11 @@ $ErrorActionPreference = 'Stop'
 $Here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Exe = Join-Path $Here 'claude-control.exe'; $Src = Join-Path $Here 'control.cs'
 if (-not (Test-Path $Exe) -or ((Test-Path $Src) -and (Get-Item $Src).LastWriteTime -gt (Get-Item $Exe).LastWriteTime)) {
-  & (Join-Path $Here 'claude-cursor.ps1') build | Out-Null
+  $csc = $null
+  foreach ($fw in 'Framework64', 'Framework') { $c = Join-Path $env:WINDIR "Microsoft.NET\$fw\v4.0.30319\csc.exe"; if (Test-Path $c) { $csc = $c; break } }
+  if (-not $csc) { throw 'csc.exe (.NET Framework 4) not found' }
+  $out = & $csc /nologo /optimize+ /target:exe "/out:$Exe" $Src 2>&1
+  if ($LASTEXITCODE -ne 0) { $out; throw 'build failed (claude-control)' }
 }
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 & $Exe @args

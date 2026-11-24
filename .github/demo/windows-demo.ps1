@@ -8,8 +8,6 @@ function Ref($lines, $types) {
   foreach ($l in $lines) { foreach ($t in $types) { if ($l -match "^(e\d+)\s+$t\s") { return $Matches[1] } } }
   return $null
 }
-powershell -NoProfile -MTA -File (Join-Path $PSScriptRoot 'uia-diag.ps1') | Write-Host
-powershell -NoProfile -STA -File (Join-Path $PSScriptRoot 'uia-diag.ps1') | Write-Host
 & $CC start --app notepad | Write-Host
 Start-Sleep -Milliseconds 800
 & $CC say "Claude $dot looking around" | Out-Null

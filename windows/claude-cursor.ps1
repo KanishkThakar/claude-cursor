@@ -59,6 +59,13 @@ function Build {
   $out = & $csc /nologo /optimize+ /target:winexe "/out:$Bin" /r:System.Drawing.dll /r:System.Windows.Forms.dll $Src 2>&1
   if ($LASTEXITCODE -ne 0) { $out; throw 'build failed' }
   "built $Bin"
+  $ctlSrc = Join-Path $Here 'control.cs'
+  if (Test-Path $ctlSrc) {
+    $ctl = Join-Path $Here 'claude-control.exe'
+    $out = & $csc /nologo /optimize+ /target:exe "/out:$ctl" $ctlSrc 2>&1
+    if ($LASTEXITCODE -ne 0) { $out; throw 'build failed (claude-control)' }
+    "built $ctl"
+  }
 }
 function EnsureBuilt {
   if (-not (Test-Path $Bin)) { Build | Out-Null; return }

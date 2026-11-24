@@ -5,3 +5,4 @@ skills/*/scripts/claude-ghost*
 .DS_Store
 windows/claude-ghost.exe
 dist/
+windows/claude-control.exe

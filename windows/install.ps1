@@ -21,7 +21,7 @@ $ProgressPreference = 'SilentlyContinue'
 $Repo  = 'KanishkThakar/claude-cursor'
 $Dest  = Join-Path $env:LOCALAPPDATA 'Programs\ClaudeCursor'
 $Skills = Join-Path $env:USERPROFILE '.claude\skills'
-$Files = 'ghost.cs', 'claude-cursor.ps1', 'claude-cursor.cmd', 'claude-cursor', 'claude-control.ps1', 'claude-control.cmd', 'claude-control'
+$Files = 'ghost.cs', 'claude-cursor.ps1', 'claude-cursor.cmd', 'claude-cursor', 'claude-control.ps1', 'claude-control.cmd', 'claude-control', 'control.cs'
 $SkillNames = 'claude-cursor', 'computer-control'
 
 function Say($msg, $color = 'Gray') { Write-Host $msg -ForegroundColor $color }
@@ -81,7 +81,7 @@ Say "        -> $Dest" DarkGray
 # 2. Build with the compiler that ships with Windows.
 Step 2 'Building the cursor (no Visual Studio needed)'
 & (Join-Path $Dest 'claude-cursor.ps1') build | Out-Null
-Say '        -> claude-ghost.exe ready' DarkGray
+Say '        -> claude-ghost.exe + claude-control.exe ready' DarkGray
 $p = [Environment]::GetEnvironmentVariable('Path', 'User')
 if (-not (($p -split ';') -contains $Dest)) {
   [Environment]::SetEnvironmentVariable('Path', ((@($p, $Dest) | Where-Object { $_ }) -join ';'), 'User')
@@ -100,7 +100,7 @@ else {
     }
     New-Item -ItemType Directory -Force (Join-Path $d 'scripts') | Out-Null
     Copy-Item -Recurse -Force (Join-Path (Join-Path $SkillSrc $n) '*') $d
-    foreach ($f in $Files + 'claude-ghost.exe') { Copy-Item -Force (Join-Path $Dest $f) (Join-Path $d 'scripts') }
+    foreach ($f in $Files + 'claude-ghost.exe' + 'claude-control.exe') { Copy-Item -Force (Join-Path $Dest $f) (Join-Path $d 'scripts') }
     New-Item -ItemType File -Force (Join-Path $d '.installed-by-claude-cursor') | Out-Null
     Say "        -> /$n is ready in Claude Code" DarkGray
   }
