@@ -15,6 +15,12 @@
 # label narrates the step. Refs are saved per window and go stale when the UI changes: run ui again.
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+# Load the client-side providers for classic Win32 controls (Edit, menus, list views...).
+# Without them those controls appear as bare panes with no patterns.
+try {
+  Add-Type -AssemblyName UIAutomationClientsideProviders
+  [Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly([UIAutomationClientsideProviders.UIAutomationClientSideProviders].Assembly.GetName())
+} catch { }
 Add-Type @'
 using System; using System.Runtime.InteropServices;
 public static class CCDpi {
